@@ -38,8 +38,8 @@ export async function runTUI() {
     const items = manifest[installType];
 
     if (!items || Object.keys(items).length === 0) {
-        cancel(`No ${installType} available in the repository.`);
-        process.exit(0);
+        cancel(`No ${installType} available in this repository yet. The catalog will be enriched soon — check back or contribute on GitHub!`);
+        process.exit(1);
     }
 
     for (const [id, info] of Object.entries(items)) {

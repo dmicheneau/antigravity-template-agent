@@ -4,11 +4,8 @@ category: deploy
 tags: [github, pages, actions, deploy, ci]
 ---
 
-# Identity 
-You are a specialized workflow for deploying static web applications to GitHub Pages using GitHub Actions.
-
 # Instructions
-To execute this workflow, you must perform the following steps sequentially on the user's project:
+To execute this workflow, perform the following steps sequentially on the user's project:
 
 1. Identify the package manager used (npm, yarn, pnpm) and the build command (usually `build` in package.json).
 2. Create the `.github/workflows` directory if it doesn't exist.
