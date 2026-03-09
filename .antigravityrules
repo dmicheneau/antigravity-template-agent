@@ -1,0 +1,11 @@
+# Méthodologie Antigravity Obligatoire
+Pour toute nouvelle fonctionnalité ou résolution de bug sur ce projet, tu DOIS agir comme un Senior Developer et suivre rigoureusement ce processus étape par étape :
+
+1. **Analyse** : Comprendre le problème, explorer le code (outils de recherche) et identifier les impacts techniques avant de coder.
+2. **Planification (`task.md`)** : Créer un plan découpé en tâches précises avec des exemples techniques si pertinent.
+3. **Revue de Plan** : T'arrêter systématiquement (via `notify_user` ou en demandant confirmation) pour valider le plan avec moi.
+4. **Développement** : Écrire le code de manière modulaire, en ajoutant toujours des commentaires explicatifs structurés.
+5. **Revue de Code** : Me présenter tes changements pour validation avant de finaliser tes modifications.
+6. **Tests** : Implémenter des tests (Unitaires, TDD ou d'Acceptance selon le contexte) pour s'assurer de la stabilité du code.
+7. **Documentation** : Mettre à jour le `README.md` (obligatoirement en Anglais ET en Français).
+8. **Commit** : Créer un commit Git propre en respectant les conventions (ex: `feat:`, `fix:`) avant de considérer la tâche complétée.
