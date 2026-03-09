@@ -42,11 +42,23 @@ export async function runTUI() {
         process.exit(1);
     }
 
+    const cwd = process.cwd();
+    const destDir = path.join(cwd, '.agents', installType);
+
     for (const [id, info] of Object.entries(items)) {
+        const destFileName = path.basename(info.path);
+        const destPath = path.join(destDir, destFileName);
+        const isInstalled = fs.existsSync(destPath);
+
+        let hintBuilder = `${pc.dim(info.category)} · ${info.description}`;
+        if (isInstalled) {
+            hintBuilder = `${pc.green('(Already installed)')} ${hintBuilder}`;
+        }
+
         options.push({
             value: { id, type: installType === 'workflows' ? 'workflow' : 'skill' },
-            label: info.name,
-            hint: `${pc.dim(info.category)} · ${info.description}`
+            label: isInstalled ? pc.gray(info.name) : info.name,
+            hint: hintBuilder
         });
     }
 
@@ -61,7 +73,7 @@ export async function runTUI() {
         process.exit(0);
     }
 
-    note(`Will automatically install to .agents/${installType}/`, 'Destination');
+    note(`Will install to .agents/${installType}/\n(If an item already exists, you will be asked to confirm the overwrite)`, 'Destination Info');
 
     await installItems(selections, manifest);
 
