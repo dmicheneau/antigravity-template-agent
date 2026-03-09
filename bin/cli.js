@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { runTUI } from './tui.js';
-import { installAgents } from './installer.js';
+import { installItems } from './installer.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -16,12 +16,12 @@ async function main() {
   if (args.length === 0 || args[0] === 'tui') {
     await runTUI();
   } else if (args[0] === 'install') {
-    const agentsToInstall = args.slice(1);
-    if (agentsToInstall.length === 0) {
-      console.log('Error: Please specify at least one agent ID to install.');
+    const itemsToInstall = args.slice(1);
+    if (itemsToInstall.length === 0) {
+      console.log('Error: Please specify at least one workflow or skill ID to install.');
       process.exit(1);
     }
-    
+
     let manifest;
     try {
       manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
@@ -29,13 +29,25 @@ async function main() {
       console.error('Error reading manifest.json');
       process.exit(1);
     }
-    
-    const targetDir = process.env.ANTIGRAVITY_AGENT_DIR || '.agents/workflows';
-    await installAgents(agentsToInstall, manifest, targetDir);
+
+    const selections = [];
+    for (const id of itemsToInstall) {
+      if (manifest.workflows && manifest.workflows[id]) {
+        selections.push({ id, type: 'workflow' });
+      } else if (manifest.skills && manifest.skills[id]) {
+        selections.push({ id, type: 'skill' });
+      } else {
+        console.error(`Error: item '${id}' not found in manifest workflows or skills.`);
+      }
+    }
+
+    if (selections.length > 0) {
+      await installItems(selections, manifest);
+    }
   } else {
     console.log('Usage:');
     console.log('  npx antigravity-template-agent tui');
-    console.log('  npx antigravity-template-agent install <agent-id1> [agent-id2...]');
+    console.log('  npx antigravity-template-agent install <workflow-id>|<skill-id>...');
   }
 }
 

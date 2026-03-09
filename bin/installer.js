@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import pc from 'picocolors';
 import { fileURLToPath } from 'url';
 import { spinner, log } from '@clack/prompts';
 
@@ -8,52 +7,61 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.join(__dirname, '..');
 
-export async function installAgents(agentIds, manifest, targetDirStr) {
-    const targetDir = path.resolve(process.cwd(), targetDirStr);
+export async function installItems(selections, manifest) {
+    const cwd = process.cwd();
+    const errors = [];
+    let installedWorkflows = 0;
+    let installedSkills = 0;
 
     const s = spinner();
-    s.start(`Preparing to install to ${targetDirStr}`);
+    s.start(`Preparing installation...`);
 
-    if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
-    }
+    for (const selection of selections) {
+        const { id, type } = selection; // type is 'workflow' or 'skill'
+        const itemInfo = manifest[type + 's'][id];
 
-    let installedCount = 0;
-    const errors = [];
-
-    for (const id of agentIds) {
-        const agentInfo = manifest.agents[id];
-        if (!agentInfo) {
-            errors.push(`Agent ${id} not found in manifest.`);
+        if (!itemInfo) {
+            errors.push(`${type} ${id} not found in manifest.`);
             continue;
         }
 
-        const sourcePath = path.join(projectRoot, agentInfo.path);
+        const sourcePath = path.join(projectRoot, itemInfo.path);
         if (!fs.existsSync(sourcePath)) {
-            errors.push(`Source file for ${id} not found: ${agentInfo.path}`);
+            errors.push(`Source for ${id} not found: ${itemInfo.path}`);
             continue;
         }
 
-        const destFileName = path.basename(agentInfo.path);
-        const destPath = path.join(targetDir, destFileName);
+        const destDir = path.join(cwd, '.agents', type + 's');
+        if (!fs.existsSync(destDir)) {
+            fs.mkdirSync(destDir, { recursive: true });
+        }
+
+        const destFileName = path.basename(itemInfo.path);
+        const destPath = path.join(destDir, destFileName);
 
         try {
-            fs.copyFileSync(sourcePath, destPath);
-            s.message(`Installed ${agentInfo.name} workflow`);
-            // Add a slight delay to allow the beautiful spinner to be perceived
+            // Use cpSync to handle both single Markdown files (Workflows) and full Directories (Skills)
+            fs.cpSync(sourcePath, destPath, { recursive: true });
+
+            const niceName = itemInfo.name || id;
+            s.message(`Installed ${type}: ${niceName}`);
             await new Promise(r => setTimeout(r, 200));
-            installedCount++;
+
+            if (type === 'workflow') installedWorkflows++;
+            if (type === 'skill') installedSkills++;
+
         } catch (err) {
             errors.push(`Failed to install ${id}: ${err.message}`);
         }
     }
 
-    s.stop(`Finished processing ${installedCount} agent(s).`);
+    s.stop(`Finished processing items.`);
 
     if (errors.length > 0) {
         log.error(`Encountered ${errors.length} error(s):`);
         errors.forEach(e => log.warn(e));
-    } else if (installedCount > 0) {
-        log.success(`Successfully installed ${installedCount} workflow(s) to ${targetDirStr}.`);
+    } else {
+        if (installedWorkflows > 0) log.success(`Installed ${installedWorkflows} Workflow(s) into .agents/workflows/`);
+        if (installedSkills > 0) log.success(`Installed ${installedSkills} Skill(s) into .agents/skills/`);
     }
 }

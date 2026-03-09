@@ -1,45 +1,19 @@
 {
-  "version": "1.0.0",
-  "categories": [
-    {
-      "id": "web",
-      "name": "Web Development",
-      "description": "Agents for web development (React, Node, etc.)"
-    },
-    {
-      "id": "database",
-      "name": "Databases",
-      "description": "Agents for database management and design"
-    },
-    {
-      "id": "devops",
-      "name": "DevOps",
-      "description": "Agents for DevOps tasks"
+  "version": "2.0.0",
+  "workflows": {
+    "deploy/setup-github-pages": {
+      "name": "Setup GitHub Pages",
+      "description": "Automatically builds and deploys your static site to GitHub Pages via Actions",
+      "category": "Deploy",
+      "path": "workflows/deploy/setup-github-pages.md"
     }
-  ],
-  "packs": [
-    {
-      "id": "full-stack",
-      "name": "Full Stack Dev",
-      "description": "Essential agents for full-stack development",
-      "agents": ["web/expert-react", "database/postgres-pro"]
-    }
-  ],
-  "agents": {
-    "web/expert-react": {
-      "name": "Expert React",
-      "description": "Specialist in React, hooks, and modern frontend architecture",
-      "path": "agents/web/expert-react.md"
-    },
-    "database/postgres-pro": {
-      "name": "Postgres Pro",
-      "description": "PostgreSQL expert for schema design and complex queries",
-      "path": "agents/database/postgres-pro.md"
-    },
-    "devops/devops-engineer": {
-      "name": "DevOps Engineer",
-      "description": "CI/CD, Docker, and Kubernetes expert",
-      "path": "agents/devops/devops-engineer.md"
+  },
+  "skills": {
+    "quality/typescript-stricter": {
+      "name": "TypeScript Stricter",
+      "description": "Analyzes TypeScript code and enforces stricter typing rules automatically",
+      "category": "Quality",
+      "path": "skills/quality/typescript-stricter"
     }
   }
 }

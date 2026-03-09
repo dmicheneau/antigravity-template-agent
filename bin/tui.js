@@ -1,9 +1,9 @@
-import { intro, outro, select, multiselect, text, isCancel, cancel, note } from '@clack/prompts';
+import { intro, outro, select, multiselect, isCancel, cancel, note } from '@clack/prompts';
 import pc from 'picocolors';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { installAgents } from './installer.js';
+import { installItems } from './installer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,8 +11,7 @@ const manifestPath = path.join(__dirname, '..', 'manifest.json');
 
 export async function runTUI() {
     console.clear();
-
-    intro(pc.bgMagenta(pc.black(pc.bold(' 🪐 ANTIGRAVITY AGENTS '))) + ' - ' + pc.blue('Workflow Installer'));
+    intro(pc.bgMagenta(pc.black(pc.bold(' 🪐 ANTIGRAVITY AGENTS '))) + ' - ' + pc.blue('Workflow & Skill Installer'));
 
     let manifest;
     try {
@@ -22,90 +21,49 @@ export async function runTUI() {
         process.exit(1);
     }
 
-    const installMode = await select({
-        message: 'What do you want to install?',
+    const installType = await select({
+        message: 'What do you want to install into your Antigravity environment?',
         options: [
-            { value: 'agents', label: '🤖 Individual Agents', hint: 'Pick specific workflows from our categories' },
-            { value: 'packs', label: '📦 Agent Packs', hint: 'Install pre-configured bundles for specific roles' }
+            { value: 'workflows', label: '📄 Workflows', hint: 'Step-by-step procedural instructions (.md)' },
+            { value: 'skills', label: '🛠  Skills', hint: 'Advanced capabilities with executable scripts (Directories)' }
         ]
     });
 
-    if (isCancel(installMode)) {
+    if (isCancel(installType)) {
         cancel('Operation cancelled.');
         process.exit(0);
     }
 
-    let selectedAgents = [];
+    const options = [];
+    const items = manifest[installType];
 
-    if (installMode === 'packs') {
-        const packOptions = manifest.packs.map(pack => ({
-            value: pack.agents,
-            label: pack.name,
-            hint: pack.description
-        }));
-
-        const selectedPacks = await multiselect({
-            message: 'Select the packs you want to install:',
-            options: packOptions,
-            required: true
-        });
-
-        if (isCancel(selectedPacks)) {
-            cancel('Operation cancelled.');
-            process.exit(0);
-        }
-
-        // Flatten the selected arrays of agents into a Set to avoid duplicates
-        const finalSet = new Set();
-        for (const group of selectedPacks) {
-            group.forEach(agentId => finalSet.add(agentId));
-        }
-        selectedAgents = Array.from(finalSet);
-
-    } else {
-        // Individual agents mode
-        const agentOptions = [];
-
-        for (const category of manifest.categories) {
-            const categoryAgents = Object.entries(manifest.agents)
-                .filter(([id]) => id.startsWith(category.id + '/'))
-                .map(([id, info]) => ({
-                    value: id,
-                    label: info.name,
-                    hint: `${pc.dim(category.name)} · ${info.description}`
-                }));
-
-            if (categoryAgents.length > 0) {
-                agentOptions.push(...categoryAgents);
-            }
-        }
-
-        selectedAgents = await multiselect({
-            message: 'Select the agents you want to install:',
-            options: agentOptions,
-            required: true
-        });
-
-        if (isCancel(selectedAgents)) {
-            cancel('Operation cancelled.');
-            process.exit(0);
-        }
+    if (!items || Object.keys(items).length === 0) {
+        cancel(`No ${installType} available in the repository.`);
+        process.exit(0);
     }
 
-    const installDir = await text({
-        message: 'Where should we install these agents?',
-        initialValue: '.agents/workflows',
-        placeholder: '.agents/workflows'
+    for (const [id, info] of Object.entries(items)) {
+        options.push({
+            value: { id, type: installType === 'workflows' ? 'workflow' : 'skill' },
+            label: info.name,
+            hint: `${pc.dim(info.category)} · ${info.description}`
+        });
+    }
+
+    const selections = await multiselect({
+        message: `Select the ${installType} you want to install:`,
+        options: options,
+        required: true
     });
 
-    if (isCancel(installDir)) {
+    if (isCancel(selections)) {
         cancel('Operation cancelled.');
         process.exit(0);
     }
 
-    note(`Installing ${selectedAgents.length} agent(s) into ${installDir}`, 'Ready to install');
+    note(`Will automatically install to .agents/${installType}/`, 'Destination');
 
-    await installAgents(selectedAgents, manifest, installDir);
+    await installItems(selections, manifest);
 
-    outro(pc.green('🚀 All done! Your workflows are installed and ready to use.'));
+    outro(pc.green('🚀 All done! Ready for takeoff.'));
 }

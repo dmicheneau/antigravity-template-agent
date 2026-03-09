@@ -1,41 +1,41 @@
-# Antigravity Template Agent
+# Antigravity Template: Workflows & Skills
 
-This repository provides a structured template and installer for bringing specialized **Agent Workflows** to the Antigravity IDE. It adapts the successful pattern from `opencode-template-agent` for the Antigravity ecosystem.
+This repository provides a template and specialized CLI installer designed specifically for the **Antigravity IDE** ecosystem.
 
-## How it Works
+Unlike traditional prompt-based editors that use monolithic "Personas", Antigravity orchestrates work via procedural **Workflows** and code-based **Skills**. This tool allows you to easily distribute and install these advanced capabilities directly into your projects.
 
-Antigravity natively supports specialized instructions via "Workflows" (typically stored in `.agents/workflows/`). This tooling allows you to quickly bootstrap and install pre-configured expert behaviors for your AI assistant in any project.
+## Architecture
 
-Agents are defined as markdown files with YAML frontmatter containing their description, category, and tags, followed by their specialized identity and operational guidelines.
+This ecosystem provides two core types of capabilities:
 
-## Quick Install (CLI / TUI)
+### 1. Workflows (`.agents/workflows/`)
+Workflows are declarative Markdown files containing step-by-step procedural guidelines. They teach Antigravity *how* to accomplish a specific multi-step task (e.g., standardizing a CI/CD setup, generating a UI component according to your design system).
 
-You can launch the interactive installer using `npx`:
+### 2. Skills (`.agents/skills/`)
+Skills are full advanced toolsets installed as directories. They contain a `SKILL.md` instruction file and executable `scripts/` that Antigravity can be authorized to run autonomously. This allows the AI to perform complex static analysis, migrations, or deploy routines on its own.
+
+## Quick Install (TUI / CLI)
+
+You can launch the interactive beautiful installer using `npx`:
 
 ```bash
 npx github:dmicheneau/antigravity-template-agent tui
 ```
-*This will open a terminal UI where you can pick individual agents or whole packs to install directly into your current project's `.agents/workflows/` directory.*
+*The TUI will guide you to select the Workflows or Skills you need. It automatically routes the files to the correct `.agents/workflows` or `.agents/skills` local directories so that Antigravity immediately recognizes them.*
 
-To install specific agents directly via CLI without the UI, you can use:
+To install specific elements directly via the CLI without the UI:
 ```bash
-npx github:dmicheneau/antigravity-template-agent install <agent-id>
+npx github:dmicheneau/antigravity-template-agent install <id>
 
-# Example:
-npx github:dmicheneau/antigravity-template-agent install web/expert-react database/postgres-pro
+# Examples:
+npx github:dmicheneau/antigravity-template-agent install deploy/setup-github-pages
+npx github:dmicheneau/antigravity-template-agent install quality/typescript-stricter
 ```
 
-## Available Sample Agents
-
-Currently, this template includes a few sample agents to demonstrate the format:
-
-- **web/expert-react**: Specialist in React, hooks, and modern frontend architecture.
-- **devops/devops-engineer**: CI/CD, Docker, and Kubernetes expert.
-- **database/postgres-pro**: PostgreSQL expert for schema design and complex queries.
-
-## Customizing for your Organization
+## Creating Your Own Repository
 
 1. Fork this repository or copy its structure.
-2. Edit `manifest.json` to define your own categories and packs.
-3. Write your specialized `.md` workflow files in the `agents/` directory.
-4. Distribute by telling your team to run `npx github:your-org/your-repo tui`.
+2. Edit `manifest.json` to declare your own tools.
+3. Write your `.md` files in the `workflows/` directory.
+4. Structure your skill sets (directories containing scripts + SKILL.md) in the `skills/` directory.
+5. Provide the `npx github:your-org/your-repo tui` command to your developers for a 1-click upgrade of their local AI capabilities.
